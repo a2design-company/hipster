@@ -32,6 +32,12 @@ from hipster import Hipster
 hipchat = Hipster(Your token)
 ```
 
+If behind a proxy, use
+```python
+from hipster import Hipster
+hipchat = Hipster(Your token, Proxy Url)
+```
+
 Call API methods::
 
 ```python

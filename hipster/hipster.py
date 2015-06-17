@@ -17,12 +17,12 @@ def singleton_with_methods(class_):
     def getinstance(*args, **kwargs):
         if class_ not in instances:
             instances[class_] = class_(*args, **kwargs)
-            instances[class_].__init__(args[0])
+            instances[class_].__init__(args[0], args[1])
             for key in api_func:
                 _temp = (lambda **kwrgs: kwrgs)
                 _temp.__name__ = key
                 class_.__dict__[_temp.__name__] = call_api(
-                    api_func[key]['method'], 
+                    api_func[key]['method'],
                     api_func[key]['API_url'])(_temp)
         return instances[class_]
     return getinstance
@@ -36,7 +36,12 @@ def call_api(method, dest):
                 url = '{0}/{1}?auth_token={2}&{3}'\
                     .format(API_URL, dest, self.AUTH_TOKEN, urlencode(params))
                 try:
-                    req = urllib3.PoolManager().urlopen(method, url)
+                    if None == self.PROXY:
+                        req = urllib3.PoolManager().urlopen(method, url)
+                    else:
+                        proxy = urllib3.ProxyManager(self.PROXY)
+                        req = proxy.request(method, url)
+
                     return {
                         'status' : req.status,
                         'data'   : json.loads(req.data)\
